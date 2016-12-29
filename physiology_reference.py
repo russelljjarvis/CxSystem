@@ -47,6 +47,7 @@ class neuron_reference(object):
         self.output_neuron['number_of_neurons'] = int(number_of_neurons)
         self.output_neuron['threshold'] = 'vm>Vcut'
         self.output_neuron['reset'] = 'vm=V_res'
+        # self.output_neuron['reset'] = 'vm=V_res; spike_sensor +=1'
         self.output_neuron['refractory'] = '4 * ms'
         self.output_neuron['type'] = cell_type
         self.output_neuron['soma_layer'] = int(layers_idx[0])
@@ -66,6 +67,18 @@ class neuron_reference(object):
 
         self.output_neuron['namespace'] = neuron_parser(self.output_neuron, physio_config_df).output_namespace
         self.output_neuron['equation'] = ''
+
+        #TODO scaling to all neurons, test. Set scaling factor to 1 before start (namespace?)
+        # if 1:
+        #         self.output_neuron['equation'] = Equations('')
+        #     # self.output_neuron['synaptic_scaling_factor'] = 1
+        #
+        #     self.output_neuron['equation'] += Equations('''
+        #         synaptic_scaling_factor = 1  : 1
+        #         # dsynaptic_scaling_factor/dt = scaling_speed  * synaptic_scaling_factor * (ap_target_frequency*tau_synaptic_scaling - spike_sensor)  : 1
+        #         dspike_sensor/dt = -spike_sensor/tau_synaptic_scaling : 1
+        #         ''')
+        #     # self.output_neuron['reset'] = 'vm=V_res; spike_sensor +=1'
 
         variable_start_idx = self.physio_config_df['Variable'][self.physio_config_df['Variable'] == self.output_neuron['type']].index[0]
         try:
@@ -140,7 +153,13 @@ class neuron_reference(object):
         # eq_template_soma = self.value_extractor(self.cropped_df_for_current_type,'eq_template_soma')
         # eq_template_dend = self.value_extractor(self.cropped_df_for_current_type,'eq_template_dend')
 
+        # print '\nAP target is ', str(self.output_neuron['namespace']['ap_target_frequency'])
+        # print '\ntau syn sc is ', str(self.output_neuron['namespace']['tau_synaptic_scaling'])
+        print '\ntarget value is ', str(self.output_neuron['namespace']['ap_target_frequency'] * self.output_neuron['namespace']['tau_synaptic_scaling'])
+
         eq_template_soma = '''
+        dsynaptic_scaling_factor/dt = scaling_speed  * (ap_target_frequency*tau_synaptic_scaling - spike_sensor)/(ap_target_frequency*tau_synaptic_scaling )  : 1
+        dspike_sensor/dt = -spike_sensor/tau_synaptic_scaling : 1
         dvm/dt = ((gL*(EL-vm) + gealpha * (Ee-vm) + gealphaX * (Ee-vm) + gialpha * (Ei-vm) + gL * DeltaT * exp((vm-VT) / DeltaT) +I_dendr) / C) +  noise_sigma*xi*taum_soma**-0.5 : volt (unless refractory)
         dge/dt = -ge/tau_e : siemens
         dgealpha/dt = (ge-gealpha)/tau_e : siemens
@@ -209,6 +228,9 @@ class neuron_reference(object):
 
         self.output_neuron['equation'] += Equations('''x : meter
                             y : meter''')
+        # self.output_neuron['reset'] = 'vm=V_res; spike_sensor +=1'
+
+        self.output_neuron['reset'] += '; spike_sensor +=1'
 
     def BC(self):
         '''
@@ -449,24 +471,26 @@ class synapse_reference(object):
 
         '''
         #TODO scaling to all synapses in a cell. Invert for inhibitory synapses. Check hertz for spike monitor,
-        # TODO check scaling factors with simulations.
+        #TODO check scaling factors with simulations.
         self.output_synapse['equation'] = Equations('''
+            wght : siemens
             wght0 : siemens
-            dwght/dt = scaling_speed * wght * (ap_target_frequency - spike_sensor)  : siemens (event-driven)
             dapre/dt = -apre/taupre : siemens (event-driven)
             dapost/dt = -apost/taupost : siemens (event-driven)
-            dspike_sensor/dt = -spike_sensor/tau_synaptic_scaling : hertz (event-driven)
             ''')
+
+        # print "\ntaupre for STDP w scaling is %s", str(self.output_synapse['namespace']['taupre'])
+        # print "\ntaupost for STDP w scaling is %s", str(self.output_synapse['namespace']['taupost'])
 
         if self.output_synapse['namespace']['Apre'] >= 0:
             self.output_synapse['pre_eq'] = '''
-                        %s+=wght
+                        %s += synaptic_scaling_factor * wght
                         apre += Apre * wght0 * Cp
                         wght = clip(wght + apost, 0, wght_max)
                         ''' % (self.output_synapse['receptor'] + self.output_synapse['post_comp_name'] + '_post')
         else:
             self.output_synapse['pre_eq'] = '''
-                        %s+=wght
+                        %s += synaptic_scaling_factor * wght
                         apre += Apre * wght * Cd
                         wght = clip(wght + apost, 0, wght_max)
                         ''' % (self.output_synapse['receptor'] + self.output_synapse['post_comp_name'] + '_post')
@@ -474,13 +498,11 @@ class synapse_reference(object):
             self.output_synapse['post_eq'] = '''
                         apost += Apost * wght * Cd
                         wght = clip(wght + apre, 0, wght_max)
-                        spike_sensor += 1 * hertz
                         '''
         else:
             self.output_synapse['post_eq'] = '''
                         apost += Apost * wght0 * Cp
                         wght = clip(wght + apre, 0, wght_max)
-                        spike_sensor += 1 * hertz
                         '''
 
     def Fixed(self):

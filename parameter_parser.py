@@ -128,12 +128,12 @@ class synapse_parser(object):
         self.output_namespace['Apre'], self.output_namespace['Apost'], self.output_namespace['taupre'], \
         self.output_namespace['taupost'] = self.value_extractor(self.physio_config_df,'stdp_%s_%s' % (self.output_synapse['pre_group_type'], \
             self.output_synapse['post_group_type'] + self.output_synapse['post_comp_name']))
-        self.output_namespace['tau_synaptic_scaling'] = self.value_extractor(self.physio_config_df,
-                                                                             'tau_synaptic_scaling')
-        self.output_namespace['ap_target_frequency'] = self.value_extractor(self.physio_config_df,
-                                                                             'ap_target_frequency')
-        self.output_namespace['scaling_speed'] = self.value_extractor(self.physio_config_df,
-                                                                             'scaling_speed')
+        # self.output_namespace['tau_synaptic_scaling'] = self.value_extractor(self.physio_config_df,
+        #                                                                      'tau_synaptic_scaling')
+        # self.output_namespace['ap_target_frequency'] = self.value_extractor(self.physio_config_df,
+        #                                                                      'ap_target_frequency')
+        # self.output_namespace['scaling_speed'] = self.value_extractor(self.physio_config_df,
+        #                                                                      'scaling_speed')
         stdp_max_strength_coefficient = self.value_extractor(self.physio_config_df,'stdp_max_strength_coefficient')
         self.output_namespace['wght_max'] = self.value_extractor(self.physio_config_df,'cw_%s_%s'% (self.output_synapse['pre_group_type'],self.output_synapse['post_group_type']))* stdp_max_strength_coefficient
         std_wght = self.value_extractor(self.physio_config_df,'cw_%s_%s' % (self.output_synapse['pre_group_type'], self.output_synapse['post_group_type'])) / nS
@@ -205,6 +205,14 @@ class neuron_parser (object):
         # total g_leak in compartments
         self.output_namespace['gL']= self.output_namespace['fract_areas'][output_neuron['dend_comp_num']] * self.output_namespace['gL'] * self.output_namespace['Area_tot_pyram']
         self.output_namespace['taum_soma'] = self.output_namespace['C'][1] / self.output_namespace['gL'][1]
+        self.output_namespace['scaling_speed'] = self.value_extractor(self.physio_config_df,
+                                                                             'scaling_speed')
+        self.output_namespace['tau_synaptic_scaling'] = self.value_extractor(self.physio_config_df,
+                                                                             'tau_synaptic_scaling')
+        self.output_namespace['ap_target_frequency'] = self.value_extractor(self.physio_config_df,
+                                                                             'ap_target_frequency')
+
+
 
     def _BC(self,output_neuron):
         pass

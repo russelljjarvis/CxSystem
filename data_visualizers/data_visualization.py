@@ -8,15 +8,18 @@ from brian2 import *
 import bz2
 import pandas as pd
 
-time_for_visualization = np.array([1, 11.9]) + 0.00001  # To accept 0 as starting point. Rounding error for the
-# end.
+time_for_visualization = np.array([0, 9.99])   #+ 0.00001  # To accept 0 as starting point. Rounding error for the end.
 # dt = 0.1 * ms
 plot_dt = 1 * ms
-# state_variable_to_monitor = 'vm_all'
-state_variable_to_monitor = 'wght_all'
-# state_variable_to_monitor = 'spike_sensor_all'
-# state_variable_to_monitor = 'apre_all'
-# state_variable_to_monitor = 'apost_all'
+
+# state_variable_to_monitor = 'vm'
+# state_variable_to_monitor = 'wght'
+# state_variable_to_monitor = 'spike_sensor'
+state_variable_to_monitor = 'synaptic_scaling_factor'
+# state_variable_to_monitor = 'Apre'
+# state_variable_to_monitor = 'Apost'
+
+state_variable_to_monitor = state_variable_to_monitor + '_all'
 
 # data_file_name = '../CX_OUTPUT/CX_Output_20161108_11000084_Python_1000ms.gz'
 directory = '/opt/Laskenta/Output/CX_Output'
@@ -27,7 +30,6 @@ class DataVisualization:
 
     def __init__(self):
         self.neuron_groups = ['NG0_relay_video', 'NG1_PC_L4toL2', 'NG3_BC_L4', 'NG2_PC_L2toL1', 'NG4_BC_L2']
-
 
     def data_loader(self, input_path):
         if '.gz' in input_path:
@@ -73,8 +75,7 @@ class DataVisualization:
             if subplot_index == n_rows - 1:
                 plt.ylabel('Number of neurons')
                 plt.xlabel('Firing rate (Hz)')
-            #plt.show()
-        plt.subplots_adjust(hspace = 0.4)
+        plt.subplots_adjust(hspace=0.4)
 
     def make_figure(self):
         extensions = ['.gz', '.bz2', '.pickle']
@@ -117,12 +118,10 @@ class DataVisualization:
 
             col_max = 1
             for group_index, neuron_group in enumerate(neuron_groups):
-                repeat = sum([1 for pp in stvar_of_interest.keys() if (neuron_group+'__') in pp])
-                col_max = repeat if repeat > col_max else col_max
-
+                repeat_col = sum([1 for pp in stvar_of_interest.keys() if (neuron_group+'__') in pp])
+                col_max = repeat_col if repeat_col > col_max else col_max
 
             for plot_index, neuron_group in enumerate(neuron_groups):
-
                 n_columns = 2 + col_max
                 plt.subplot(len(neuron_groups), n_columns, plot_index * n_columns + 1)
                 plt.plot(np.real(positions['w_coord'][neuron_group]), np.imag(positions['w_coord'][neuron_group]), '.')
@@ -135,7 +134,6 @@ class DataVisualization:
                 plt.xlim([time_for_visualization[0], time_for_visualization[1]])
                 plt.title('%s spikes' % neuron_group)
 
-
                 if neuron_group in stvar_of_interest.keys():
                     stvar_value = stvar_of_interest[neuron_group]
                     plt.subplot(len(neuron_groups), n_columns, plot_index * n_columns + 3)
@@ -147,25 +145,26 @@ class DataVisualization:
                     time_vector = np.arange(time_for_visualization[0],
                                             time_for_visualization[1], plot_dt / (1 * second))
                     plt.plot(time_vector, subsampled_data_epoch_for_plot.T, '-')
-                    plt.title('%s vm' % neuron_group)
+                    plt.title('%s %s' % (neuron_group,state_variable_to_monitor[:state_variable_to_monitor.index('_')]))
 
                 elif any([(neuron_group+'__') in syn_name for syn_name in stvar_of_interest.keys()]) or \
                      any([(neuron_group+'__') in syn_name for syn_name in stvar_of_interest.keys()]):
-                    target_syn_idx = [syn_idx for syn_idx,syn_name in enumerate(stvar_of_interest.keys()) if (neuron_group+'__') in syn_name]
-                    for index_of_syn_idx,syn_idx in enumerate(target_syn_idx) :
+                    target_syn_idx = [syn_idx for syn_idx, syn_name in enumerate(stvar_of_interest.keys())
+                                      if (neuron_group+'__') in syn_name]
+                    for index_of_syn_idx, syn_idx in enumerate(target_syn_idx) :
                         stvar = stvar_of_interest.keys()[syn_idx]
                         stvar_value = stvar_of_interest[stvar]
                         plt.subplot(len(neuron_groups), n_columns, plot_index * n_columns + 3 + index_of_syn_idx)
                         # N_time_points = len(stvar_value[0])
-                        data_indices_for_plot = np.array([time_for_visualization[0] * (1 * second)
-                                                          / dt, time_for_visualization[1] * (1 * second) / dt], dtype=int)
+                        data_indices_for_plot = np.array([time_for_visualization[0] * (1 * second) / dt,
+                                                          time_for_visualization[1] * (1 * second) / dt], dtype=int)
                         subsample_step = int(plot_dt / dt)
-                        subsampled_data_epoch_for_plot = stvar_value[:, data_indices_for_plot[0]:data_indices_for_plot[1]:
-                                                                     subsample_step]
+                        subsampled_data_epoch_for_plot = stvar_value[:, data_indices_for_plot[0]:
+                                                                     data_indices_for_plot[1]:subsample_step]
                         time_vector = np.arange(time_for_visualization[0], time_for_visualization[1],
                                                 plot_dt / (1 * second))
                         plt.plot(time_vector, subsampled_data_epoch_for_plot.T, '-')
-                        title_text = '%s %s' % (stvar_of_interest.keys()[syn_idx],state_variable_to_monitor[
+                        title_text = '%s %s' % (stvar_of_interest.keys()[syn_idx], state_variable_to_monitor[
                                                                                 :state_variable_to_monitor.index('_')])
                         if len(title_text) > 26:
                             title_font = {'fontname': 'Arial', 'size': '8', 'color': 'black', 'weight': 'normal',
