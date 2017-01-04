@@ -25,7 +25,7 @@ state_variable_to_monitor = state_variable_to_monitor + '_all'
 directory = '/opt/Laskenta/Output/CX_Output'
 # directory = '/opt3/CX_Output'
 
-
+# TODO build frequency vs scaling_factor plot. Check that cell_group_wise scaling factor
 class DataVisualization:
 
     def __init__(self):

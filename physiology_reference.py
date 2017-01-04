@@ -158,7 +158,7 @@ class neuron_reference(object):
         print '\ntarget value is ', str(self.output_neuron['namespace']['ap_target_frequency'] * self.output_neuron['namespace']['tau_synaptic_scaling'])
 
         eq_template_soma = '''
-        dsynaptic_scaling_factor/dt = scaling_speed  * (ap_target_frequency*tau_synaptic_scaling - spike_sensor)/(ap_target_frequency*tau_synaptic_scaling )  : 1
+        dsynaptic_scaling_factor/dt = scaling_speed  * (1 - (spike_sensor / (ap_target_frequency*tau_synaptic_scaling))) : 1
         dspike_sensor/dt = -spike_sensor/tau_synaptic_scaling : 1
         dvm/dt = ((gL*(EL-vm) + gealpha * (Ee-vm) + gealphaX * (Ee-vm) + gialpha * (Ei-vm) + gL * DeltaT * exp((vm-VT) / DeltaT) +I_dendr) / C) +  noise_sigma*xi*taum_soma**-0.5 : volt (unless refractory)
         dge/dt = -ge/tau_e : siemens
@@ -399,7 +399,7 @@ class synapse_reference(object):
         :param receptor: defines the type of the receptor in the synaptic connection. Currently ge and gi are implemented.
         :param pre_group_idx: The index of the pre-synaptic group.
         :param post_group_idx: The index of the post-synaptic group.
-        :param syn_type: Type of the synaptic connection, currently STDP and Fixed are implemented.
+        :param syn_type: Type of the synaptic connection, currently STDP, STDP_with_scaling and Fixed are implemented.
         :param pre_type: Type of the pre-synaptic NeuronGroup.
         :param post_type: Type of the post-synaptic NeuronGroup.
         :param post_comp_name: Name of the target compartment in the cells of the post-synaptic NeuronGroup. The default value is "_soma" as usually soma is being targeted. In case other compartments are targeted in a PC cell, e.g. basal or apical dendrites, _basal or _apical will be used.
@@ -470,8 +470,10 @@ class synapse_reference(object):
         The method for implementing the STDP synaptic connection.
 
         '''
-        #TODO scaling to all synapses in a cell. Invert for inhibitory synapses. Check hertz for spike monitor,
-        #TODO check scaling factors with simulations.
+        #TODO set initial synaptic_scaling_factor to target value (in cells)
+        #TODO scaling to all synapses in a cell.
+        #TODO Invert for inhibitory synapses.
+        #TODO check scaling factors with simulations. NOTE scaling speed multiplies not only the kulmakerroin of synaptic_scaling_factor but also its magnitude
         self.output_synapse['equation'] = Equations('''
             wght : siemens
             wght0 : siemens
@@ -481,6 +483,8 @@ class synapse_reference(object):
 
         # print "\ntaupre for STDP w scaling is %s", str(self.output_synapse['namespace']['taupre'])
         # print "\ntaupost for STDP w scaling is %s", str(self.output_synapse['namespace']['taupost'])
+
+
 
         if self.output_synapse['namespace']['Apre'] >= 0:
             self.output_synapse['pre_eq'] = '''
