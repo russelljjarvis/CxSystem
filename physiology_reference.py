@@ -473,6 +473,7 @@ class synapse_reference(object):
         #TODO set initial synaptic_scaling_factor to target value (in cells)
         #TODO scaling to all synapses in a cell.
         #TODO Invert for inhibitory synapses.
+        #TODO Distinct target frequencies for the different cell groups
         #TODO check scaling factors with simulations. NOTE scaling speed multiplies not only the kulmakerroin of synaptic_scaling_factor but also its magnitude
         self.output_synapse['equation'] = Equations('''
             wght : siemens
