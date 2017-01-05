@@ -470,11 +470,10 @@ class synapse_reference(object):
         The method for implementing the STDP synaptic connection.
 
         '''
-        #TODO set initial synaptic_scaling_factor to target value (in cells)
         #TODO scaling to all synapses in a cell.
         #TODO Invert for inhibitory synapses.
         #TODO Distinct target frequencies for the different cell groups
-        #TODO check scaling factors with simulations. NOTE scaling speed multiplies not only the kulmakerroin of synaptic_scaling_factor but also its magnitude
+        #TODO check scaling factors with simulations.
         self.output_synapse['equation'] = Equations('''
             wght : siemens
             wght0 : siemens
