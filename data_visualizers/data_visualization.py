@@ -46,13 +46,14 @@ class DataVisualization:
 
     def firing_rate_histograms(self, simulation_data, figure_title):
         spikes_all = simulation_data['spikes_all']
-        total_time = simulation_data['time_vector'][-1]
+        total_time = simulation_data['time_vector'][-1] #  Last point in the time vector
+        scaling_factors = simulation_data['synaptic_scaling_factor_all']
 
         fig = plt.figure()
-        figure_title_overview = 'Firing rates for neuron groups; %s' % figure_title
+        figure_title_overview = 'Firing rates and synaptic scaling for neuron groups; %s' % figure_title
         fig.suptitle(figure_title_overview, fontsize=12)
         n_rows = len(spikes_all)
-        n_columns = 2  # The two plots side-by-side
+        n_columns = 3  # The three plots side-by-side
         title_font = {'fontname': 'Arial', 'size': '12', 'color': 'black', 'weight': 'normal',
                       'verticalalignment': 'bottom'}  # Bottom vertical alignment for more space
 
@@ -63,6 +64,7 @@ class DataVisualization:
             spike_counts, bin_edges = np.histogram(spike_indices, bins=np.arange(number_of_neurons+1))
             frequencies = spike_counts / total_time
 
+
             # the histogram of the data
             plt.subplot(n_rows, n_columns, subplot_index * n_columns + 1)
             plt.bar(np.arange(number_of_neurons), frequencies)
@@ -70,11 +72,20 @@ class DataVisualization:
             if subplot_index == n_rows - 1:
                 plt.ylabel('Firing rate (Hz)')
                 plt.xlabel('Neuron index')
+
             plt.subplot(n_rows, n_columns, subplot_index * n_columns + 2)
             plt.hist(frequencies, facecolor='green', alpha=0.75)
             if subplot_index == n_rows - 1:
                 plt.ylabel('Number of neurons')
                 plt.xlabel('Firing rate (Hz)')
+
+            if neuron_group in scaling_factors.keys():
+                plt.subplot(n_rows, n_columns, subplot_index * n_columns + 3)
+                plt.plot(frequencies[np.arange(10,511,20)], scaling_factors[neuron_group])
+                if subplot_index == n_rows - 1:
+                    plt.ylabel('Scaling factors')
+                    plt.xlabel('Firing rate (Hz)')
+
         plt.subplots_adjust(hspace=0.4)
 
     def make_figure(self):

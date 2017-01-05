@@ -5,7 +5,7 @@ row_type,#save_brian_data_path , #load_brian_data_path, #load_positions_only, do
 params,/opt3/CX_Output/brian_data.gz,/opt3/CX_Output/sivanni/brian_data_20161028_142108.gz,1,0,1,0,20,0.01 * ms,1
 ,,,,,,,,,
 row_type,idx,path,type,freq,monitors,,,,
-IN,0,./video_input_files/V1_input_layer_.mat,video,190*Hz,[Sp],,,,
+IN,0,./video_input_files/V1_input_layer_.mat,video,220*Hz,[Sp],,,,
 ,,,,,,,,,
 ,,,,,,,,,
 row_type,idx,number_of_neurons,neuron_type,layer_idx,net_center,monitors,noise_sigma,,
