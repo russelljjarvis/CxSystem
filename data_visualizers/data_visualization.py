@@ -80,6 +80,15 @@ class DataVisualization:
                 plt.xlabel('Firing rate (Hz)')
 
             if neuron_group in scaling_factors.keys():
+                pattern = 'synaptic_scaling_factor[rec]' # Pattern to match in Anatomy csv file
+                df=simulation_data['Anatomy_configuration']
+                bool_idx = df.applymap(lambda x: True if pattern in str(x) else False)
+                index_to_pattern = np.where(bool_idx)
+                appropriate_rows = df.ix[index_to_pattern[0]]
+                bool_correct_row = appropriate_rows[1].str.contains(neuron_group[2]) # Select based on NG number
+                correct_row_data = appropriate_rows[bool_correct_row]
+                #TODO Turn cell to string, look CxSystem for parsing the correct cell
+
                 plt.subplot(n_rows, n_columns, subplot_index * n_columns + 3)
                 plt.plot(frequencies[np.arange(10,511,20)], scaling_factors[neuron_group])
                 if subplot_index == n_rows - 1:

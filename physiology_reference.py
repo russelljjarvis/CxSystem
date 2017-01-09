@@ -155,7 +155,8 @@ class neuron_reference(object):
 
         # print '\nAP target is ', str(self.output_neuron['namespace']['ap_target_frequency'])
         # print '\ntau syn sc is ', str(self.output_neuron['namespace']['tau_synaptic_scaling'])
-        print '\ntarget value is ', str(self.output_neuron['namespace']['ap_target_frequency'] * self.output_neuron['namespace']['tau_synaptic_scaling'])
+        print '\nSpike sensor target value is ', str(self.output_neuron['namespace']['ap_target_frequency'] *
+                                                     self.output_neuron['namespace']['tau_synaptic_scaling'])
 
         eq_template_soma = '''
         dsynaptic_scaling_factor/dt = scaling_speed  * (1 - (spike_sensor / (ap_target_frequency*tau_synaptic_scaling))) : 1
@@ -465,6 +466,7 @@ class synapse_reference(object):
                         apost += Apost * wght0 * Cp
                         wght = clip(wght + apre, 0, wght_max)
                         '''
+
     def STDP_with_scaling(self):
         '''
         The method for implementing the STDP synaptic connection.
@@ -474,6 +476,7 @@ class synapse_reference(object):
         #TODO Invert for inhibitory synapses.
         #TODO Distinct target frequencies for the different cell groups
         #TODO check scaling factors with simulations.
+        #TODO clip scaling to 0.66-1.5
         self.output_synapse['equation'] = Equations('''
             wght : siemens
             wght0 : siemens
@@ -484,16 +487,20 @@ class synapse_reference(object):
         # print "\ntaupre for STDP w scaling is %s", str(self.output_synapse['namespace']['taupre'])
         # print "\ntaupost for STDP w scaling is %s", str(self.output_synapse['namespace']['taupost'])
 
-
+        self.output_synapse['pre_eq'] = ''
+        if self.output_synapse['receptor'] in ['gi']:
+            self.output_synapse['pre_eq'] += '''
+            synaptic_scaling_factor = 1./synaptic_scaling_factor
+            '''
 
         if self.output_synapse['namespace']['Apre'] >= 0:
-            self.output_synapse['pre_eq'] = '''
+            self.output_synapse['pre_eq'] += '''
                         %s += synaptic_scaling_factor * wght
                         apre += Apre * wght0 * Cp
                         wght = clip(wght + apost, 0, wght_max)
                         ''' % (self.output_synapse['receptor'] + self.output_synapse['post_comp_name'] + '_post')
         else:
-            self.output_synapse['pre_eq'] = '''
+            self.output_synapse['pre_eq'] += '''
                         %s += synaptic_scaling_factor * wght
                         apre += Apre * wght * Cd
                         wght = clip(wght + apost, 0, wght_max)
