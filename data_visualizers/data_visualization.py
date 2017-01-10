@@ -12,14 +12,14 @@ time_for_visualization = np.array([0, 0.09])   #+ 0.00001  # To accept 0 as star
 # dt = 0.1 * ms
 plot_dt = 1 * ms
 
-# state_variable_to_monitor = 'vm'
+state_variable_to_monitor = 'vm'
 # state_variable_to_monitor = 'wght'
 # state_variable_to_monitor = 'spike_sensor'
-state_variable_to_monitor = 'synaptic_scaling_factor'
+# state_variable_to_monitor = 'synaptic_scaling_factor'
 # state_variable_to_monitor = 'Apre'
 # state_variable_to_monitor = 'Apost'
 
-state_variable_to_monitor = state_variable_to_monitor + '_all'
+state_variable = state_variable_to_monitor + '_all'
 
 # data_file_name = '../CX_OUTPUT/CX_Output_20161108_11000084_Python_1000ms.gz'
 directory = '/opt/Laskenta/Output/CX_Output'
@@ -46,7 +46,7 @@ class DataVisualization:
 
     def firing_rate_histograms(self, simulation_data, figure_title):
         spikes_all = simulation_data['spikes_all']
-        total_time = simulation_data['time_vector'][-1] #  Last point in the time vector
+        total_time = simulation_data['time_vector'][-1]  # Last point in the time vector
         scaling_factors = simulation_data['synaptic_scaling_factor_all']
 
         fig = plt.figure()
@@ -80,19 +80,26 @@ class DataVisualization:
                 plt.xlabel('Firing rate (Hz)')
 
             if neuron_group in scaling_factors.keys():
-                pattern = 'synaptic_scaling_factor[rec]' # Pattern to match in Anatomy csv file
+                # Parsing the sampled_cells array from the csv monitor substring. Unfortunately very difficult.
                 df=simulation_data['Anatomy_configuration']
-                bool_idx = df.applymap(lambda x: True if pattern in str(x) else False)
+                bool_idx = df.applymap(lambda x: True if state_variable_to_monitor + '[rec]' in str(x) else False)  #Find matching cells
                 index_to_pattern = np.where(bool_idx)
-                appropriate_rows = df.ix[index_to_pattern[0]]
-                bool_correct_row = appropriate_rows[1].str.contains(neuron_group[2]) # Select based on NG number
+                appropriate_rows = df.ix[index_to_pattern[0]]  # Assumes that the neuron group monitors are in the same column in the csv file
+                bool_correct_row = appropriate_rows[1].str.contains(neuron_group[2]) # Select correct row of dataframe based on NG number
                 correct_row_data = appropriate_rows[bool_correct_row]
-                #TODO Turn cell to string, look CxSystem for parsing the correct cell
+                correct_cell_data = str(correct_row_data.values[0][index_to_pattern[1][0]])
+                assert state_variable_to_monitor in correct_cell_data, "State variable to monitor not found"
+                starting_index = correct_cell_data.index(state_variable_to_monitor + '[rec]')
+                ending_index = correct_cell_data.index(')', starting_index) + 1
+                exestring = 'np.arange' + correct_cell_data[
+                                          starting_index + len(state_variable_to_monitor + '[rec]'):ending_index]
+                final_exestring = 'sampled_cells = ' + exestring.replace('-', ',')
+                exec final_exestring in globals(), locals()
 
                 plt.subplot(n_rows, n_columns, subplot_index * n_columns + 3)
-                plt.plot(frequencies[np.arange(10,511,20)], scaling_factors[neuron_group])
+                plt.plot(frequencies[sampled_cells], scaling_factors[neuron_group][:,-1],'.')
                 if subplot_index == n_rows - 1:
-                    plt.ylabel('Scaling factors')
+                    plt.ylabel(state_variable_to_monitor)
                     plt.xlabel('Firing rate (Hz)')
 
         plt.subplots_adjust(hspace=0.4)
@@ -121,7 +128,7 @@ class DataVisualization:
             simulation_data = self.data_loader(data_file_name)
             positions = simulation_data['positions_all']
             spikes_all = simulation_data['spikes_all']
-            stvar_of_interest = simulation_data[state_variable_to_monitor]
+            stvar_of_interest = simulation_data[state_variable]
             dt = simulation_data['time_vector'][1] - simulation_data['time_vector'][0]
 
             if type(metadata) is not dict:
@@ -165,7 +172,7 @@ class DataVisualization:
                     time_vector = np.arange(time_for_visualization[0],
                                             time_for_visualization[1], plot_dt / (1 * second))
                     plt.plot(time_vector, subsampled_data_epoch_for_plot.T, '-')
-                    plt.title('%s %s' % (neuron_group,state_variable_to_monitor[:state_variable_to_monitor.index('_')]))
+                    plt.title('%s %s' % (neuron_group,state_variable_to_monitor))
 
                 elif any([(neuron_group+'__') in syn_name for syn_name in stvar_of_interest.keys()]) or \
                      any([(neuron_group+'__') in syn_name for syn_name in stvar_of_interest.keys()]):
@@ -184,8 +191,7 @@ class DataVisualization:
                         time_vector = np.arange(time_for_visualization[0], time_for_visualization[1],
                                                 plot_dt / (1 * second))
                         plt.plot(time_vector, subsampled_data_epoch_for_plot.T, '-')
-                        title_text = '%s %s' % (stvar_of_interest.keys()[syn_idx], state_variable_to_monitor[
-                                                                                :state_variable_to_monitor.index('_')])
+                        title_text = '%s %s' % (stvar_of_interest.keys()[syn_idx], state_variable_to_monitor)
                         if len(title_text) > 26:
                             title_font = {'fontname': 'Arial', 'size': '8', 'color': 'black', 'weight': 'normal',
                                           'verticalalignment': 'bottom'}  # Bottom vertical alignment for more space

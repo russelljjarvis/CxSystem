@@ -155,8 +155,8 @@ class neuron_reference(object):
 
         # print '\nAP target is ', str(self.output_neuron['namespace']['ap_target_frequency'])
         # print '\ntau syn sc is ', str(self.output_neuron['namespace']['tau_synaptic_scaling'])
-        print '\nSpike sensor target value is ', str(self.output_neuron['namespace']['ap_target_frequency'] *
-                                                     self.output_neuron['namespace']['tau_synaptic_scaling'])
+        # print '\nSpike sensor target value is ', str(self.output_neuron['namespace']['ap_target_frequency'] *
+        #                                              self.output_neuron['namespace']['tau_synaptic_scaling'])
 
         eq_template_soma = '''
         dsynaptic_scaling_factor/dt = scaling_speed  * (1 - (spike_sensor / (ap_target_frequency*tau_synaptic_scaling))) : 1
@@ -180,7 +180,7 @@ class neuron_reference(object):
         dgialpha/dt = (gi-gialpha)/tau_i : siemens
         '''
 
-        self.output_neuron['equation'] = Equations(eq_template_dend, vm="vm_basal", ge="ge_basal",
+        self.output_neuron['equation'] += Equations(eq_template_dend, vm="vm_basal", ge="ge_basal",
                                                    gealpha="gealpha_basal",
                                                    C=self.output_neuron['namespace']['C'][0],
                                                    gL=self.output_neuron['namespace']['gL'][0],
@@ -495,7 +495,7 @@ class synapse_reference(object):
 
         if self.output_synapse['namespace']['Apre'] >= 0:
             self.output_synapse['pre_eq'] += '''
-                        %s += synaptic_scaling_factor * wght
+                        %s +=   * wght
                         apre += Apre * wght0 * Cp
                         wght = clip(wght + apost, 0, wght_max)
                         ''' % (self.output_synapse['receptor'] + self.output_synapse['post_comp_name'] + '_post')
