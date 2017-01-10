@@ -556,7 +556,11 @@ class CxSystem(object):
         except ValueError as e:
             raise ValueError(e.message + '\n You are probably trying to load the positions from a file that does not contain the same number of cells.')
 
-        if neuron_type == 'PC':
+        if True: # TODO Temporary flag to put all cellgroups to be prepared for scaling
+            exec "%s.spike_sensor = self.customized_neurons_list[%d]['namespace']['tau_synaptic_scaling'] * self.customized_neurons_list[%d]['namespace']['ap_target_frequency']" % (
+                _dyn_neurongroup_name, current_idx, current_idx)
+            exec "%s.synaptic_scaling_factor = 1" % (_dyn_neurongroup_name)
+        elif neuron_type == 'PC':
             exec "%s.spike_sensor = self.customized_neurons_list[%d]['namespace']['tau_synaptic_scaling'] * self.customized_neurons_list[%d]['namespace']['ap_target_frequency']" % (
                 _dyn_neurongroup_name, current_idx, current_idx)
             exec "%s.synaptic_scaling_factor = 1" % (_dyn_neurongroup_name)

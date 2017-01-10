@@ -47,7 +47,6 @@ class neuron_reference(object):
         self.output_neuron['number_of_neurons'] = int(number_of_neurons)
         self.output_neuron['threshold'] = 'vm>Vcut'
         self.output_neuron['reset'] = 'vm=V_res'
-        # self.output_neuron['reset'] = 'vm=V_res; spike_sensor +=1'
         self.output_neuron['refractory'] = '4 * ms'
         self.output_neuron['type'] = cell_type
         self.output_neuron['soma_layer'] = int(layers_idx[0])
@@ -63,10 +62,17 @@ class neuron_reference(object):
             self.output_neuron['dends_layer'] = self.output_neuron['soma_layer']
             self.output_neuron['dend_comp_num'] = array([0])
             self.output_neuron['total_comp_num'] = array([1])
+            # self.output_neuron['equation'] = ''
             # number of compartments if applicable
 
         self.output_neuron['namespace'] = neuron_parser(self.output_neuron, physio_config_df).output_namespace
-        self.output_neuron['equation'] = ''
+        if self.output_neuron['type'] != 'VPM':
+            self.output_neuron['equation'] = Equations('''
+            dsynaptic_scaling_factor/dt = scaling_speed  * (1 - (spike_sensor / (ap_target_frequency*tau_synaptic_scaling))) : 1
+            dspike_sensor/dt = -spike_sensor/tau_synaptic_scaling : 1
+            ''')
+            self.output_neuron['reset'] += '; spike_sensor +=1'
+
 
         #TODO scaling to all neurons, test. Set scaling factor to 1 before start (namespace?)
         # if 1:
@@ -159,8 +165,8 @@ class neuron_reference(object):
         #                                              self.output_neuron['namespace']['tau_synaptic_scaling'])
 
         eq_template_soma = '''
-        dsynaptic_scaling_factor/dt = scaling_speed  * (1 - (spike_sensor / (ap_target_frequency*tau_synaptic_scaling))) : 1
-        dspike_sensor/dt = -spike_sensor/tau_synaptic_scaling : 1
+        # dsynaptic_scaling_factor/dt = scaling_speed  * (1 - (spike_sensor / (ap_target_frequency*tau_synaptic_scaling))) : 1
+        # dspike_sensor/dt = -spike_sensor/tau_synaptic_scaling : 1
         dvm/dt = ((gL*(EL-vm) + gealpha * (Ee-vm) + gealphaX * (Ee-vm) + gialpha * (Ei-vm) + gL * DeltaT * exp((vm-VT) / DeltaT) +I_dendr) / C) +  noise_sigma*xi*taum_soma**-0.5 : volt (unless refractory)
         dge/dt = -ge/tau_e : siemens
         dgealpha/dt = (ge-gealpha)/tau_e : siemens
@@ -231,7 +237,7 @@ class neuron_reference(object):
                             y : meter''')
         # self.output_neuron['reset'] = 'vm=V_res; spike_sensor +=1'
 
-        self.output_neuron['reset'] += '; spike_sensor +=1'
+        # self.output_neuron['reset'] += '; spike_sensor +=1'
 
     def BC(self):
         '''
@@ -249,7 +255,7 @@ class neuron_reference(object):
         '''
         # eq_template = self.value_extractor(self.cropped_df_for_current_type,'eq_template')
         # self.output_neuron['equation'] = Equations(eq_template, ge='ge_soma', gi='gi_soma')
-        self.output_neuron['equation'] = Equations('''
+        self.output_neuron['equation'] += Equations('''
             dvm/dt = ((gL*(EL-vm) + gL * DeltaT * exp((vm-VT) / DeltaT) + ge * (Ee-vm) + gi * (Ei-vm)) / C) +  noise_sigma*xi*taum_soma**-0.5: volt (unless refractory)
             dge/dt = -ge/tau_e : siemens
             dgi/dt = -gi/tau_i : siemens
@@ -274,7 +280,7 @@ class neuron_reference(object):
         '''
         # eq_template = self.value_extractor(self.cropped_df_for_current_type, 'eq_template')
         # self.output_neuron['equation'] = Equations(eq_template, ge='ge_soma', gi='gi_soma')
-        self.output_neuron['equation'] = Equations('''
+        self.output_neuron['equation'] += Equations('''
             dvm/dt = ((gL*(EL-vm) + gL * DeltaT * exp((vm-VT) / DeltaT) + ge * (Ee-vm) + gi * (Ei-vm)) / C) +  noise_sigma*xi*taum_soma**-0.5 : volt (unless refractory)
             dge/dt = -ge/tau_e : siemens
             dgi/dt = -gi/tau_i : siemens
@@ -301,7 +307,7 @@ class neuron_reference(object):
         # eq_template = self.value_extractor(self.cropped_df_for_current_type, 'eq_template')
         # self.output_neuron['equation'] = Equations(eq_template, ge='ge_soma', gi='gi_soma')
 
-        self.output_neuron['equation'] = Equations('''
+        self.output_neuron['equation'] += Equations('''
             dvm/dt = ((gL*(EL-vm) + gL * DeltaT * exp((vm-VT) / DeltaT) + ge * (Ee-vm) + gi * (Ei-vm)) / C)+  noise_sigma*xi*taum_soma**-0.5 : volt (unless refractory)
             dge/dt = -ge/tau_e : siemens
             dgi/dt = -gi/tau_i : siemens
@@ -328,7 +334,7 @@ class neuron_reference(object):
         # eq_template = self.value_extractor(self.cropped_df_for_current_type, 'eq_template')
         # self.output_neuron['equation'] = Equations(eq_template, ge='ge_soma', gi='gi_soma')
 
-        self.output_neuron['equation'] = Equations('''
+        self.output_neuron['equation'] += Equations('''
             dvm/dt = ((gL*(EL-vm) + gL * DeltaT * exp((vm-VT) / DeltaT) + ge * (Ee-vm) + gi * (Ei-vm)) / C)+  noise_sigma*xi*taum_soma**-0.5 : volt (unless refractory)
             dge/dt = -ge/tau_e : siemens
             dgi/dt = -gi/tau_i : siemens
@@ -472,8 +478,7 @@ class synapse_reference(object):
         The method for implementing the STDP synaptic connection.
 
         '''
-        #TODO scaling to all synapses in a cell.
-        #TODO Invert for inhibitory synapses.
+        #TODO Why no visualization of scaling factor for groups 3 and 4
         #TODO Distinct target frequencies for the different cell groups
         #TODO check scaling factors with simulations.
         #TODO clip scaling to 0.66-1.5
@@ -495,7 +500,7 @@ class synapse_reference(object):
 
         if self.output_synapse['namespace']['Apre'] >= 0:
             self.output_synapse['pre_eq'] += '''
-                        %s +=   * wght
+                        %s += synaptic_scaling_factor * wght
                         apre += Apre * wght0 * Cp
                         wght = clip(wght + apost, 0, wght_max)
                         ''' % (self.output_synapse['receptor'] + self.output_synapse['post_comp_name'] + '_post')

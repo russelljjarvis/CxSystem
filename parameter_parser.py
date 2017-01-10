@@ -215,19 +215,43 @@ class neuron_parser (object):
 
 
     def _BC(self,output_neuron):
-        pass
+        self.output_namespace['scaling_speed'] = self.value_extractor(self.physio_config_df,
+                                                                             'scaling_speed')
+        self.output_namespace['tau_synaptic_scaling'] = self.value_extractor(self.physio_config_df,
+                                                                             'tau_synaptic_scaling')
+        self.output_namespace['ap_target_frequency'] = self.value_extractor(self.physio_config_df,
+                                                                             'ap_target_frequency')
+        # pass
 
     def _L1i(self,output_neuron):
-        pass
+        self.output_namespace['scaling_speed'] = self.value_extractor(self.physio_config_df,
+                                                                             'scaling_speed')
+        self.output_namespace['tau_synaptic_scaling'] = self.value_extractor(self.physio_config_df,
+                                                                             'tau_synaptic_scaling')
+        self.output_namespace['ap_target_frequency'] = self.value_extractor(self.physio_config_df,
+                                                                             'ap_target_frequency')
+        # pass
 
     def _VPM(self,output_neuron):
         pass
 
     def _MC(self,output_neuron):
-        pass
+        self.output_namespace['scaling_speed'] = self.value_extractor(self.physio_config_df,
+                                                                             'scaling_speed')
+        self.output_namespace['tau_synaptic_scaling'] = self.value_extractor(self.physio_config_df,
+                                                                             'tau_synaptic_scaling')
+        self.output_namespace['ap_target_frequency'] = self.value_extractor(self.physio_config_df,
+                                                                             'ap_target_frequency')
+        # pass
 
     def _SS(self,output_neuron):
-        pass
+        self.output_namespace['scaling_speed'] = self.value_extractor(self.physio_config_df,
+                                                                             'scaling_speed')
+        self.output_namespace['tau_synaptic_scaling'] = self.value_extractor(self.physio_config_df,
+                                                                             'tau_synaptic_scaling')
+        self.output_namespace['ap_target_frequency'] = self.value_extractor(self.physio_config_df,
+                                                                             'ap_target_frequency')
+        # pass
 
     def value_extractor(self, df, key_name):
         non_dict_indices = df['Variable'].dropna()[df['Key'].isnull()].index.tolist()
