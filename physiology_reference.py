@@ -478,10 +478,9 @@ class synapse_reference(object):
         The method for implementing the STDP synaptic connection.
 
         '''
-        #TODO Why no visualization of scaling factor for groups 3 and 4
+        #TODO clip scaling to 0.66-1.5
         #TODO Distinct target frequencies for the different cell groups
         #TODO check scaling factors with simulations.
-        #TODO clip scaling to 0.66-1.5
         self.output_synapse['equation'] = Equations('''
             wght : siemens
             wght0 : siemens

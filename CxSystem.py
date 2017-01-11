@@ -560,10 +560,10 @@ class CxSystem(object):
             exec "%s.spike_sensor = self.customized_neurons_list[%d]['namespace']['tau_synaptic_scaling'] * self.customized_neurons_list[%d]['namespace']['ap_target_frequency']" % (
                 _dyn_neurongroup_name, current_idx, current_idx)
             exec "%s.synaptic_scaling_factor = 1" % (_dyn_neurongroup_name)
-        elif neuron_type == 'PC':
-            exec "%s.spike_sensor = self.customized_neurons_list[%d]['namespace']['tau_synaptic_scaling'] * self.customized_neurons_list[%d]['namespace']['ap_target_frequency']" % (
-                _dyn_neurongroup_name, current_idx, current_idx)
-            exec "%s.synaptic_scaling_factor = 1" % (_dyn_neurongroup_name)
+        # elif neuron_type == 'PC':
+        #     exec "%s.spike_sensor = self.customized_neurons_list[%d]['namespace']['tau_synaptic_scaling'] * self.customized_neurons_list[%d]['namespace']['ap_target_frequency']" % (
+        #         _dyn_neurongroup_name, current_idx, current_idx)
+        #     exec "%s.synaptic_scaling_factor = 1" % (_dyn_neurongroup_name)
 
         # Saving the neurons' positions both in visual field and cortical coordinates in save_data() object.
         self.save_output_data.data['positions_all']['z_coord'][_dyn_neurongroup_name] = \
