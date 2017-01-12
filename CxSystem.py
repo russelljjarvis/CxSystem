@@ -555,6 +555,16 @@ class CxSystem(object):
                 _dyn_neurongroup_name, current_idx, _dyn_neurongroup_name, current_idx)
         except ValueError as e:
             raise ValueError(e.message + '\n You are probably trying to load the positions from a file that does not contain the same number of cells.')
+
+        if True: # TODO Temporary flag to put all cellgroups to be prepared for scaling
+            exec "%s.spike_sensor = self.customized_neurons_list[%d]['namespace']['tau_synaptic_scaling'] * self.customized_neurons_list[%d]['namespace']['ap_target_frequency']" % (
+                _dyn_neurongroup_name, current_idx, current_idx)
+            exec "%s.synaptic_scaling_factor = 1" % (_dyn_neurongroup_name)
+        # elif neuron_type == 'PC':
+        #     exec "%s.spike_sensor = self.customized_neurons_list[%d]['namespace']['tau_synaptic_scaling'] * self.customized_neurons_list[%d]['namespace']['ap_target_frequency']" % (
+        #         _dyn_neurongroup_name, current_idx, current_idx)
+        #     exec "%s.synaptic_scaling_factor = 1" % (_dyn_neurongroup_name)
+
         # Saving the neurons' positions both in visual field and cortical coordinates in save_data() object.
         self.save_output_data.data['positions_all']['z_coord'][_dyn_neurongroup_name] = \
             self.customized_neurons_list[current_idx]['z_positions']
@@ -988,7 +998,7 @@ class CxSystem(object):
                     syn_con_str += ')'
                 exec syn_con_str
             exec "%s.wght=%s['init_wght']" % (_dyn_syn_name, _dyn_syn_namespace_name)  # set the weights
-            if syn_type == 'STDP': # A more sophisticated if: 'wght0' in self.customized_synapses_list[-1]['equation']
+            if syn_type == 'STDP' or syn_type == 'STDP_with_scaling': # A more sophisticated if: 'wght0' in self.customized_synapses_list[-1]['equation']
                 exec "%s.wght0=%s['init_wght']" % (_dyn_syn_name, _dyn_syn_namespace_name)  # set the weights
             exec "%s.delay=%s['delay']" % (_dyn_syn_name, _dyn_syn_namespace_name)  # set the delays
             setattr(self.main_module, _dyn_syn_name, eval(_dyn_syn_name))
