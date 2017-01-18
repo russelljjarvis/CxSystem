@@ -47,7 +47,7 @@ class DataVisualization:
     def firing_rate_histograms(self, simulation_data, figure_title):
         spikes_all = simulation_data['spikes_all']
         total_time = simulation_data['time_vector'][-1]  # Last point in the time vector
-        scaling_factors = simulation_data['synaptic_scaling_factor_all']
+        state_variable_data_dict = simulation_data['synaptic_scaling_factor_all']
 
         fig = plt.figure()
         figure_title_overview = 'Firing rates and synaptic scaling for neuron groups; %s' % figure_title
@@ -79,7 +79,7 @@ class DataVisualization:
                 plt.ylabel('Number of neurons')
                 plt.xlabel('Firing rate (Hz)')
 
-            if neuron_group in scaling_factors.keys():
+            if neuron_group in state_variable_data_dict.keys():
                 # Parsing the sampled_cells array from the csv monitor substring. Unfortunately very difficult.
                 df=simulation_data['Anatomy_configuration']
                 bool_idx = df.applymap(lambda x: True if state_variable_to_monitor + '[rec]' in str(x) else False)  #Find matching cells
@@ -97,10 +97,10 @@ class DataVisualization:
                 exec final_exestring in globals(), locals()
 
                 plt.subplot(n_rows, n_columns, subplot_index * n_columns + 3)
-                plt.plot(frequencies[sampled_cells], scaling_factors[neuron_group][:,-1],'.')
-                if subplot_index == n_rows - 1:
-                    plt.ylabel(state_variable_to_monitor)
-                    plt.xlabel('Firing rate (Hz)')
+                plt.plot(frequencies[sampled_cells], state_variable_data_dict[neuron_group][:,-1],'.')
+            if subplot_index == n_rows - 1:
+                plt.ylabel(state_variable_to_monitor)
+                plt.xlabel('Firing rate (Hz)')
 
         plt.subplots_adjust(hspace=0.4)
 
