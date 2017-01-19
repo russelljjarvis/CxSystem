@@ -25,7 +25,6 @@ state_variable = state_variable_to_monitor + '_all'
 directory = '/opt/Laskenta/Output/CX_Output'
 # directory = '/opt3/CX_Output'
 
-# TODO build frequency vs scaling_factor plot. Check that cell_group_wise scaling factor
 class DataVisualization:
 
     def __init__(self):
@@ -44,26 +43,36 @@ class DataVisualization:
                 loaded_data = pickle.load(fb)
         return loaded_data
 
+    def select_spikes_from_interval(self, spike_data, interval_start, interval_end):
+        mask = (spike_data[1] > interval_start) & (spike_data[1] < interval_end)
+        spike_indices_from_interval = spike_data[0][mask]
+        return spike_indices_from_interval
+
     def firing_rate_histograms(self, simulation_data, figure_title):
-        spikes_all = simulation_data['spikes_all']
-        total_time = simulation_data['time_vector'][-1]  # Last point in the time vector
-        state_variable_data_dict = simulation_data['synaptic_scaling_factor_all']
 
         fig = plt.figure()
         figure_title_overview = 'Firing rates and synaptic scaling for neuron groups; %s' % figure_title
         fig.suptitle(figure_title_overview, fontsize=12)
-        n_rows = len(spikes_all)
         n_columns = 3  # The three plots side-by-side
         title_font = {'fontname': 'Arial', 'size': '12', 'color': 'black', 'weight': 'normal',
                       'verticalalignment': 'bottom'}  # Bottom vertical alignment for more space
 
+        spikes_all = simulation_data['spikes_all']
+        total_time = simulation_data['time_vector'][-1]  # Last point in the time vector
+        state_variable_data_dict = simulation_data[state_variable]
+
+
         for subplot_index, neuron_group in enumerate(self.neuron_groups):
             number_of_neurons = simulation_data['number_of_neurons'][neuron_group]
 
-            spike_indices = spikes_all[neuron_group][0]
+            # Select data from defined time interval
+            spike_indices = self.select_spikes_from_interval(spikes_all[neuron_group],
+                                                        time_for_visualization[0], time_for_visualization[1])
+
+            # spike_indices = spikes_all[neuron_group][0]
             spike_counts, bin_edges = np.histogram(spike_indices, bins=np.arange(number_of_neurons+1))
             frequencies = spike_counts / total_time
-
+            n_rows = len(spikes_all)
 
             # the histogram of the data
             plt.subplot(n_rows, n_columns, subplot_index * n_columns + 1)
@@ -97,6 +106,7 @@ class DataVisualization:
                 exec final_exestring in globals(), locals()
 
                 plt.subplot(n_rows, n_columns, subplot_index * n_columns + 3)
+                #TODO state_variable_data_dict sample correct time interval
                 plt.plot(frequencies[sampled_cells], state_variable_data_dict[neuron_group][:,-1],'.')
             if subplot_index == n_rows - 1:
                 plt.ylabel(state_variable_to_monitor)
