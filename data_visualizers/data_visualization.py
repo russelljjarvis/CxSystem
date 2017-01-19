@@ -8,7 +8,7 @@ from brian2 import *
 import bz2
 import pandas as pd
 
-time_for_visualization = np.array([0, 0.09])   #+ 0.00001  # To accept 0 as starting point. Rounding error for the end.
+time_for_visualization = np.array([0, 0.19])   #+ 0.00001  # To accept 0 as starting point. Rounding error for the end.
 # dt = 0.1 * ms
 plot_dt = 1 * ms
 
@@ -46,7 +46,15 @@ class DataVisualization:
     def select_spikes_from_interval(self, spike_data, interval_start, interval_end):
         mask = (spike_data[1] > interval_start) & (spike_data[1] < interval_end)
         spike_indices_from_interval = spike_data[0][mask]
-        return spike_indices_from_interval
+        time_interval = interval_end - interval_start
+        return spike_indices_from_interval,  time_interval
+
+    def select_state_variable_from_interval(self, state_variable_data, interval_start, interval_end, dt):
+        state_variable_index_start = int(interval_start / (dt / second))
+        state_variable_index_end = int(interval_end / (dt / second))
+        state_variable_data_from_interval = np.average(state_variable_data[:,
+                                            state_variable_index_start:state_variable_index_end], axis=1)
+        return state_variable_data_from_interval
 
     def firing_rate_histograms(self, simulation_data, figure_title):
 
@@ -58,7 +66,7 @@ class DataVisualization:
                       'verticalalignment': 'bottom'}  # Bottom vertical alignment for more space
 
         spikes_all = simulation_data['spikes_all']
-        total_time = simulation_data['time_vector'][-1]  # Last point in the time vector
+        # total_time = simulation_data['time_vector'][-1]  # Last point in the time vector
         state_variable_data_dict = simulation_data[state_variable]
 
 
@@ -66,12 +74,12 @@ class DataVisualization:
             number_of_neurons = simulation_data['number_of_neurons'][neuron_group]
 
             # Select data from defined time interval
-            spike_indices = self.select_spikes_from_interval(spikes_all[neuron_group],
+            spike_indices, time_interval = self.select_spikes_from_interval(spikes_all[neuron_group],
                                                         time_for_visualization[0], time_for_visualization[1])
 
             # spike_indices = spikes_all[neuron_group][0]
             spike_counts, bin_edges = np.histogram(spike_indices, bins=np.arange(number_of_neurons+1))
-            frequencies = spike_counts / total_time
+            frequencies = spike_counts / time_interval
             n_rows = len(spikes_all)
 
             # the histogram of the data
@@ -106,8 +114,13 @@ class DataVisualization:
                 exec final_exestring in globals(), locals()
 
                 plt.subplot(n_rows, n_columns, subplot_index * n_columns + 3)
-                #TODO state_variable_data_dict sample correct time interval
-                plt.plot(frequencies[sampled_cells], state_variable_data_dict[neuron_group][:,-1],'.')
+                #TODO check why state_variable_data_display is inverted
+
+                dt = simulation_data['time_vector'][1] - simulation_data['time_vector'][0]
+                state_variable_data_display = self.select_state_variable_from_interval(
+                    state_variable_data_dict[neuron_group], time_for_visualization[0], time_for_visualization[1], dt)
+                # plt.plot(frequencies[sampled_cells], state_variable_data_dict[neuron_group][:,-1],'.')
+                plt.plot(frequencies[sampled_cells], state_variable_data_display, '.')
             if subplot_index == n_rows - 1:
                 plt.ylabel(state_variable_to_monitor)
                 plt.xlabel('Firing rate (Hz)')
