@@ -165,8 +165,6 @@ class neuron_reference(object):
         #                                              self.output_neuron['namespace']['tau_synaptic_scaling'])
 
         eq_template_soma = '''
-        # dsynaptic_scaling_factor/dt = scaling_speed  * (1 - (spike_sensor / (ap_target_frequency*tau_synaptic_scaling))) : 1
-        # dspike_sensor/dt = -spike_sensor/tau_synaptic_scaling : 1
         dvm/dt = ((gL*(EL-vm) + gealpha * (Ee-vm) + gealphaX * (Ee-vm) + gialpha * (Ei-vm) + gL * DeltaT * exp((vm-VT) / DeltaT) +I_dendr) / C) +  noise_sigma*xi*taum_soma**-0.5 : volt (unless refractory)
         dge/dt = -ge/tau_e : siemens
         dgealpha/dt = (ge-gealpha)/tau_e : siemens
@@ -235,9 +233,6 @@ class neuron_reference(object):
 
         self.output_neuron['equation'] += Equations('''x : meter
                             y : meter''')
-        # self.output_neuron['reset'] = 'vm=V_res; spike_sensor +=1'
-
-        # self.output_neuron['reset'] += '; spike_sensor +=1'
 
     def BC(self):
         '''
@@ -478,9 +473,6 @@ class synapse_reference(object):
         The method for implementing the STDP synaptic connection.
 
         '''
-        #TODO clip scaling to 0.66-1.5
-        #TODO Distinct target frequencies for the different cell groups
-        #TODO check scaling factors with simulations.
         self.output_synapse['equation'] = Equations('''
             wght : siemens
             wght0 : siemens

@@ -8,7 +8,7 @@ from brian2 import *
 import bz2
 import pandas as pd
 
-time_for_visualization = np.array([0, 0.19])   #+ 0.00001  # To accept 0 as starting point. Rounding error for the end.
+time_for_visualization = np.array([0.0, 0.29])   #+ 0.00001  # To accept 0 as starting point. Rounding error for the end.
 # dt = 0.1 * ms
 plot_dt = 1 * ms
 
@@ -97,21 +97,27 @@ class DataVisualization:
                 plt.xlabel('Firing rate (Hz)')
 
             if neuron_group in state_variable_data_dict.keys():
-                # Parsing the sampled_cells array from the csv monitor substring. Unfortunately very difficult.
-                df=simulation_data['Anatomy_configuration']
-                bool_idx = df.applymap(lambda x: True if state_variable_to_monitor + '[rec]' in str(x) else False)  #Find matching cells
-                index_to_pattern = np.where(bool_idx)
-                appropriate_rows = df.ix[index_to_pattern[0]]  # Assumes that the neuron group monitors are in the same column in the csv file
-                bool_correct_row = appropriate_rows[1].str.contains(neuron_group[2]) # Select correct row of dataframe based on NG number
-                correct_row_data = appropriate_rows[bool_correct_row]
-                correct_cell_data = str(correct_row_data.values[0][index_to_pattern[1][0]])
-                assert state_variable_to_monitor in correct_cell_data, "State variable to monitor not found"
-                starting_index = correct_cell_data.index(state_variable_to_monitor + '[rec]')
-                ending_index = correct_cell_data.index(')', starting_index) + 1
-                exestring = 'np.arange' + correct_cell_data[
-                                          starting_index + len(state_variable_to_monitor + '[rec]'):ending_index]
-                final_exestring = 'sampled_cells = ' + exestring.replace('-', ',')
-                exec final_exestring in globals(), locals()
+                total_N_neurons = simulation_data['Neuron_Groups_Parameters'][neuron_group]['number_of_neurons']
+                if total_N_neurons == state_variable_data_dict[neuron_group].shape[0]:
+                    displyed_cells = np.arange(0, total_N_neurons)
+                else:
+                    # Parsing the sampled_cells array from the csv monitor substring. Unfortunately very difficult.
+                    df=simulation_data['Anatomy_configuration']
+                    bool_idx = df.applymap(lambda x: True if state_variable_to_monitor + '[rec]' in str(x) else False)  #Find matching cells
+                    index_to_pattern = np.where(bool_idx)
+                    appropriate_rows = df.ix[index_to_pattern[0]]  # Assumes that the neuron group monitors are in the same column in the csv file
+                    bool_correct_row = appropriate_rows[1].str.contains(neuron_group[2]) # Select correct row of dataframe based on NG number
+                    correct_row_data = appropriate_rows[bool_correct_row]
+                    correct_cell_data = str(correct_row_data.values[0][index_to_pattern[1][0]])
+                    assert state_variable_to_monitor in correct_cell_data, "State variable to monitor not found"
+                    starting_index = correct_cell_data.index(state_variable_to_monitor + '[rec]')
+                    ending_index = correct_cell_data.index(')', starting_index) + 1
+                    exestring = 'np.arange' + correct_cell_data[
+                                              starting_index + len(state_variable_to_monitor + '[rec]'):ending_index]
+                    final_exestring = 'sampled_cells = ' + exestring.replace('-', ',')
+                    exec final_exestring in globals(), locals()
+                    displyed_cells = sampled_cells
+
 
                 plt.subplot(n_rows, n_columns, subplot_index * n_columns + 3)
                 #TODO check why state_variable_data_display is inverted
@@ -120,7 +126,7 @@ class DataVisualization:
                 state_variable_data_display = self.select_state_variable_from_interval(
                     state_variable_data_dict[neuron_group], time_for_visualization[0], time_for_visualization[1], dt)
                 # plt.plot(frequencies[sampled_cells], state_variable_data_dict[neuron_group][:,-1],'.')
-                plt.plot(frequencies[sampled_cells], state_variable_data_display, '.')
+                plt.plot(frequencies[displyed_cells], state_variable_data_display, '.')
             if subplot_index == n_rows - 1:
                 plt.ylabel(state_variable_to_monitor)
                 plt.xlabel('Firing rate (Hz)')
