@@ -479,23 +479,28 @@ class synapse_reference(object):
             dapre/dt = -apre/taupre : siemens (event-driven)
             dapost/dt = -apost/taupost : siemens (event-driven)
             ''')
-
+        #TODO For Vafa below :)
         self.output_synapse['pre_eq'] = ''
         if self.output_synapse['receptor'] in ['gi']:
             self.output_synapse['pre_eq'] += '''
-            synaptic_scaling_factor = 1./synaptic_scaling_factor
+            synaptic_scaling_factor_local = 1./synaptic_scaling_factor
             '''
-        self.output_synapse['pre_eq'] += '''synaptic_scaling_factor = clip(synaptic_scaling_factor, 0.66, 1.5)'''
+        else:
+            self.output_synapse['pre_eq'] += '''
+            synaptic_scaling_factor_local = synaptic_scaling_factor
+            '''
+
+        self.output_synapse['pre_eq'] += '''synaptic_scaling_factor_local = clip(synaptic_scaling_factor_local, 0.66, 1.5)'''
 
         if self.output_synapse['namespace']['Apre'] >= 0:
             self.output_synapse['pre_eq'] += '''
-                        %s += synaptic_scaling_factor * wght
+                        %s += synaptic_scaling_factor_local * wght
                         apre += Apre * wght0 * Cp
                         wght = clip(wght + apost, 0, wght_max)
                         ''' % (self.output_synapse['receptor'] + self.output_synapse['post_comp_name'] + '_post')
         else:
             self.output_synapse['pre_eq'] += '''
-                        %s += synaptic_scaling_factor * wght
+                        %s += synaptic_scaling_factor_local * wght
                         apre += Apre * wght * Cd
                         wght = clip(wght + apost, 0, wght_max)
                         ''' % (self.output_synapse['receptor'] + self.output_synapse['post_comp_name'] + '_post')
