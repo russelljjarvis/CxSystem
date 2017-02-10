@@ -479,15 +479,15 @@ class synapse_reference(object):
             dapre/dt = -apre/taupre : siemens (event-driven)
             dapost/dt = -apost/taupost : siemens (event-driven)
             ''')
-        #TODO For Vafa below :)
+
         self.output_synapse['pre_eq'] = ''
         if self.output_synapse['receptor'] in ['gi']:
             self.output_synapse['pre_eq'] += '''
-            synaptic_scaling_factor_local = 1./synaptic_scaling_factor
+            synaptic_scaling_factor_local = 1./synaptic_scaling_factor_post
             '''
         else:
             self.output_synapse['pre_eq'] += '''
-            synaptic_scaling_factor_local = synaptic_scaling_factor
+            synaptic_scaling_factor_local = synaptic_scaling_factor_post
             '''
 
         self.output_synapse['pre_eq'] += '''synaptic_scaling_factor_local = clip(synaptic_scaling_factor_local, 0.66, 1.5)'''
