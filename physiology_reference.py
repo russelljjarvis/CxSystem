@@ -74,18 +74,6 @@ class neuron_reference(object):
             self.output_neuron['reset'] += '; spike_sensor +=1'
 
 
-        #TODO scaling to all neurons, test. Set scaling factor to 1 before start (namespace?)
-        # if 1:
-        #         self.output_neuron['equation'] = Equations('')
-        #     # self.output_neuron['synaptic_scaling_factor'] = 1
-        #
-        #     self.output_neuron['equation'] += Equations('''
-        #         synaptic_scaling_factor = 1  : 1
-        #         # dsynaptic_scaling_factor/dt = scaling_speed  * synaptic_scaling_factor * (ap_target_frequency*tau_synaptic_scaling - spike_sensor)  : 1
-        #         dspike_sensor/dt = -spike_sensor/tau_synaptic_scaling : 1
-        #         ''')
-        #     # self.output_neuron['reset'] = 'vm=V_res; spike_sensor +=1'
-
         variable_start_idx = self.physio_config_df['Variable'][self.physio_config_df['Variable'] == self.output_neuron['type']].index[0]
         try:
             variable_end_idx = self.physio_config_df['Variable'].dropna().index.tolist()[
@@ -159,8 +147,7 @@ class neuron_reference(object):
         # eq_template_soma = self.value_extractor(self.cropped_df_for_current_type,'eq_template_soma')
         # eq_template_dend = self.value_extractor(self.cropped_df_for_current_type,'eq_template_dend')
 
-        # print '\nAP target is ', str(self.output_neuron['namespace']['ap_target_frequency'])
-        # print '\ntau syn sc is ', str(self.output_neuron['namespace']['tau_synaptic_scaling'])
+        print '\nAP target is ', str(self.output_neuron['namespace']['ap_target_frequency'])
         # print '\nSpike sensor target value is ', str(self.output_neuron['namespace']['ap_target_frequency'] *
         #                                              self.output_neuron['namespace']['tau_synaptic_scaling'])
 
@@ -250,6 +237,9 @@ class neuron_reference(object):
         '''
         # eq_template = self.value_extractor(self.cropped_df_for_current_type,'eq_template')
         # self.output_neuron['equation'] = Equations(eq_template, ge='ge_soma', gi='gi_soma')
+
+        print '\nAP target is ', str(self.output_neuron['namespace']['ap_target_frequency'])
+
         self.output_neuron['equation'] += Equations('''
             dvm/dt = ((gL*(EL-vm) + gL * DeltaT * exp((vm-VT) / DeltaT) + ge * (Ee-vm) + gi * (Ei-vm)) / C) +  noise_sigma*xi*taum_soma**-0.5: volt (unless refractory)
             dge/dt = -ge/tau_e : siemens
@@ -275,6 +265,9 @@ class neuron_reference(object):
         '''
         # eq_template = self.value_extractor(self.cropped_df_for_current_type, 'eq_template')
         # self.output_neuron['equation'] = Equations(eq_template, ge='ge_soma', gi='gi_soma')
+
+        print '\nAP target is ', str(self.output_neuron['namespace']['ap_target_frequency'])
+
         self.output_neuron['equation'] += Equations('''
             dvm/dt = ((gL*(EL-vm) + gL * DeltaT * exp((vm-VT) / DeltaT) + ge * (Ee-vm) + gi * (Ei-vm)) / C) +  noise_sigma*xi*taum_soma**-0.5 : volt (unless refractory)
             dge/dt = -ge/tau_e : siemens
@@ -302,6 +295,9 @@ class neuron_reference(object):
         # eq_template = self.value_extractor(self.cropped_df_for_current_type, 'eq_template')
         # self.output_neuron['equation'] = Equations(eq_template, ge='ge_soma', gi='gi_soma')
 
+        print '\nAP target is ', str(self.output_neuron['namespace']['ap_target_frequency'])
+
+
         self.output_neuron['equation'] += Equations('''
             dvm/dt = ((gL*(EL-vm) + gL * DeltaT * exp((vm-VT) / DeltaT) + ge * (Ee-vm) + gi * (Ei-vm)) / C)+  noise_sigma*xi*taum_soma**-0.5 : volt (unless refractory)
             dge/dt = -ge/tau_e : siemens
@@ -328,6 +324,8 @@ class neuron_reference(object):
 
         # eq_template = self.value_extractor(self.cropped_df_for_current_type, 'eq_template')
         # self.output_neuron['equation'] = Equations(eq_template, ge='ge_soma', gi='gi_soma')
+        print '\nAP target is ', str(self.output_neuron['namespace']['ap_target_frequency'])
+
 
         self.output_neuron['equation'] += Equations('''
             dvm/dt = ((gL*(EL-vm) + gL * DeltaT * exp((vm-VT) / DeltaT) + ge * (Ee-vm) + gi * (Ei-vm)) / C)+  noise_sigma*xi*taum_soma**-0.5 : volt (unless refractory)

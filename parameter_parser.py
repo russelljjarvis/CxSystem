@@ -209,8 +209,8 @@ class neuron_parser (object):
                                                                              'scaling_speed')
         self.output_namespace['tau_synaptic_scaling'] = self.value_extractor(self.physio_config_df,
                                                                              'tau_synaptic_scaling')
-        self.output_namespace['ap_target_frequency'] = self.value_extractor(self.physio_config_df,
-                                                                             'ap_target_frequency')
+        # self.output_namespace['ap_target_frequency'] = self.value_extractor(self.physio_config_df,
+        #                                                                      'ap_target_frequency')
 
 
 
@@ -219,8 +219,8 @@ class neuron_parser (object):
                                                                              'scaling_speed')
         self.output_namespace['tau_synaptic_scaling'] = self.value_extractor(self.physio_config_df,
                                                                              'tau_synaptic_scaling')
-        self.output_namespace['ap_target_frequency'] = self.value_extractor(self.physio_config_df,
-                                                                             'ap_target_frequency')
+        # self.output_namespace['ap_target_frequency'] = self.value_extractor(self.physio_config_df,
+        #                                                                      'ap_target_frequency')
         # pass
 
     def _L1i(self,output_neuron):
@@ -228,8 +228,8 @@ class neuron_parser (object):
                                                                              'scaling_speed')
         self.output_namespace['tau_synaptic_scaling'] = self.value_extractor(self.physio_config_df,
                                                                              'tau_synaptic_scaling')
-        self.output_namespace['ap_target_frequency'] = self.value_extractor(self.physio_config_df,
-                                                                             'ap_target_frequency')
+        # self.output_namespace['ap_target_frequency'] = self.value_extractor(self.physio_config_df,
+        #                                                                      'ap_target_frequency')
         # pass
 
     def _VPM(self,output_neuron):
@@ -240,8 +240,8 @@ class neuron_parser (object):
                                                                              'scaling_speed')
         self.output_namespace['tau_synaptic_scaling'] = self.value_extractor(self.physio_config_df,
                                                                              'tau_synaptic_scaling')
-        self.output_namespace['ap_target_frequency'] = self.value_extractor(self.physio_config_df,
-                                                                             'ap_target_frequency')
+        # self.output_namespace['ap_target_frequency'] = self.value_extractor(self.physio_config_df,
+        #                                                                      'ap_target_frequency')
         # pass
 
     def _SS(self,output_neuron):
@@ -249,8 +249,8 @@ class neuron_parser (object):
                                                                              'scaling_speed')
         self.output_namespace['tau_synaptic_scaling'] = self.value_extractor(self.physio_config_df,
                                                                              'tau_synaptic_scaling')
-        self.output_namespace['ap_target_frequency'] = self.value_extractor(self.physio_config_df,
-                                                                             'ap_target_frequency')
+        # self.output_namespace['ap_target_frequency'] = self.value_extractor(self.physio_config_df,
+        #                                                                      'ap_target_frequency')
         # pass
 
     def value_extractor(self, df, key_name):
