@@ -68,7 +68,8 @@ class neuron_reference(object):
         self.output_neuron['namespace'] = neuron_parser(self.output_neuron, physio_config_df).output_namespace
         if self.output_neuron['type'] != 'VPM':
             self.output_neuron['equation'] = Equations('''
-            dsynaptic_scaling_factor/dt = scaling_speed  * (1 - (spike_sensor / (ap_target_frequency*tau_synaptic_scaling))) : 1
+            # dsynaptic_scaling_factor/dt = scaling_speed  * (1 - (spike_sensor / (ap_target_frequency*tau_synaptic_scaling))) : 1
+            dsynaptic_scaling_factor/dt =  clip(scaling_speed  * (1 - (spike_sensor / (ap_target_frequency*tau_synaptic_scaling))), 0.66, 1.5) : 1
             dspike_sensor/dt = -spike_sensor/tau_synaptic_scaling : 1
             ''')
             self.output_neuron['reset'] += '; spike_sensor +=1'
@@ -147,7 +148,6 @@ class neuron_reference(object):
         # eq_template_soma = self.value_extractor(self.cropped_df_for_current_type,'eq_template_soma')
         # eq_template_dend = self.value_extractor(self.cropped_df_for_current_type,'eq_template_dend')
 
-        print '\nAP target is ', str(self.output_neuron['namespace']['ap_target_frequency'])
         # print '\nSpike sensor target value is ', str(self.output_neuron['namespace']['ap_target_frequency'] *
         #                                              self.output_neuron['namespace']['tau_synaptic_scaling'])
 
@@ -238,8 +238,6 @@ class neuron_reference(object):
         # eq_template = self.value_extractor(self.cropped_df_for_current_type,'eq_template')
         # self.output_neuron['equation'] = Equations(eq_template, ge='ge_soma', gi='gi_soma')
 
-        print '\nAP target is ', str(self.output_neuron['namespace']['ap_target_frequency'])
-
         self.output_neuron['equation'] += Equations('''
             dvm/dt = ((gL*(EL-vm) + gL * DeltaT * exp((vm-VT) / DeltaT) + ge * (Ee-vm) + gi * (Ei-vm)) / C) +  noise_sigma*xi*taum_soma**-0.5: volt (unless refractory)
             dge/dt = -ge/tau_e : siemens
@@ -265,8 +263,6 @@ class neuron_reference(object):
         '''
         # eq_template = self.value_extractor(self.cropped_df_for_current_type, 'eq_template')
         # self.output_neuron['equation'] = Equations(eq_template, ge='ge_soma', gi='gi_soma')
-
-        print '\nAP target is ', str(self.output_neuron['namespace']['ap_target_frequency'])
 
         self.output_neuron['equation'] += Equations('''
             dvm/dt = ((gL*(EL-vm) + gL * DeltaT * exp((vm-VT) / DeltaT) + ge * (Ee-vm) + gi * (Ei-vm)) / C) +  noise_sigma*xi*taum_soma**-0.5 : volt (unless refractory)
@@ -295,9 +291,6 @@ class neuron_reference(object):
         # eq_template = self.value_extractor(self.cropped_df_for_current_type, 'eq_template')
         # self.output_neuron['equation'] = Equations(eq_template, ge='ge_soma', gi='gi_soma')
 
-        print '\nAP target is ', str(self.output_neuron['namespace']['ap_target_frequency'])
-
-
         self.output_neuron['equation'] += Equations('''
             dvm/dt = ((gL*(EL-vm) + gL * DeltaT * exp((vm-VT) / DeltaT) + ge * (Ee-vm) + gi * (Ei-vm)) / C)+  noise_sigma*xi*taum_soma**-0.5 : volt (unless refractory)
             dge/dt = -ge/tau_e : siemens
@@ -324,8 +317,6 @@ class neuron_reference(object):
 
         # eq_template = self.value_extractor(self.cropped_df_for_current_type, 'eq_template')
         # self.output_neuron['equation'] = Equations(eq_template, ge='ge_soma', gi='gi_soma')
-        print '\nAP target is ', str(self.output_neuron['namespace']['ap_target_frequency'])
-
 
         self.output_neuron['equation'] += Equations('''
             dvm/dt = ((gL*(EL-vm) + gL * DeltaT * exp((vm-VT) / DeltaT) + ge * (Ee-vm) + gi * (Ei-vm)) / C)+  noise_sigma*xi*taum_soma**-0.5 : volt (unless refractory)
@@ -488,7 +479,7 @@ class synapse_reference(object):
             synaptic_scaling_factor_local = synaptic_scaling_factor_post
             '''
 
-        self.output_synapse['pre_eq'] += '''synaptic_scaling_factor_local = clip(synaptic_scaling_factor_local, 0.66, 1.5)'''
+        # self.output_synapse['pre_eq'] += '''synaptic_scaling_factor_local = clip(synaptic_scaling_factor_local, 0.66, 1.5)'''
 
         if self.output_synapse['namespace']['Apre'] >= 0:
             self.output_synapse['pre_eq'] += '''
