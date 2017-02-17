@@ -8,7 +8,7 @@ from brian2 import *
 import bz2
 import pandas as pd
 
-time_for_visualization = np.array([0.01, 1.99])   #+ 0.00001  # To accept 0 as starting point. Rounding error for the end.
+time_for_visualization = np.array([3.01, 3.99])   #+ 0.00001  # To accept 0 as starting point. Rounding error for the end.
 # dt = 0.1 * ms
 plot_dt = 1 * ms
 

@@ -68,8 +68,7 @@ class neuron_reference(object):
         self.output_neuron['namespace'] = neuron_parser(self.output_neuron, physio_config_df).output_namespace
         if self.output_neuron['type'] != 'VPM':
             self.output_neuron['equation'] = Equations('''
-            # dsynaptic_scaling_factor/dt = scaling_speed  * (1 - (spike_sensor / (ap_target_frequency*tau_synaptic_scaling))) : 1
-            dsynaptic_scaling_factor/dt =  clip(scaling_speed  * (1 - (spike_sensor / (ap_target_frequency*tau_synaptic_scaling))), 0.66, 1.5) : 1
+            dsynaptic_scaling_factor/dt = scaling_speed  * (1 - (spike_sensor / (ap_target_frequency*tau_synaptic_scaling))) : 1
             dspike_sensor/dt = -spike_sensor/tau_synaptic_scaling : 1
             ''')
             self.output_neuron['reset'] += '; spike_sensor +=1'

@@ -21,7 +21,7 @@ _weights,w_TC_E-E_connections,( 0.7 * EE_weights_gain) * nS,"#Cruikshank et al 2
 Cp,,0.01,"# 0.001 Synaptic potentiation coefficient according to van Rossum J Neurosci 2000, here relative to initial value"
 Cd,,0.03,# 0.003 Synaptic depression coefficient according to van Rossum J Neurosci 2000
 tau_synaptic_scaling,,0.1 * second,
-scaling_speed,,0.1 * hertz,# This sets scaling speed and removes  units- thus the Hertz
+scaling_speed,,1 * hertz,# This sets scaling speed and removes  units- thus the Hertz
 ,,,
 ,,,
 conn_prob_gain,,1,# This is used for compensation of small number of neurons and thus incoming synapses
@@ -112,13 +112,13 @@ stdp,stdp_in_SS_soma,"[20, -21.5, 5.4 * ms, 124.7 * ms]",# instead of inf 2^32 -
 ,stdp_SS_L1i_soma,"[-46,-56,39.9 * ms,39.1 * ms]",
 ,,,
 ,stdp_PC_SS_soma,"[76, -48, 15.9 * ms, 19.3 * ms]",
-,stdp_PC_PC_a4," [-21, 42, 15 * ms, 103.4 * ms]","# [-21, 42, 15 * ms, 103.4 * ms]"
-,stdp_PC_PC_a3," [-21, 42, 15 * ms, 103.4 * ms]","# [7.50, 7.00, 15.00 * ms, 103.4 * ms]"
-,stdp_PC_PC_a2," [-21, 42, 15 * ms, 103.4 * ms]","# [36, -28, 12.5 * ms, 103.4 * ms]"
-,stdp_PC_PC_a1,"[-76, 48, 15.9 * ms, 19.3 * ms]","# [76, -48, 15.9 * ms, 19.3 * ms]"
-,stdp_PC_PC_a0,"[76, -48, 15.9 * ms, 19.3 * ms]","# [76, -48, 15.9 * ms, 19.3 * ms]"
-,stdp_PC_PC_soma,"[76, -48, 15.9 * ms, 19.3 * ms]","# [76, -48, 15.9 * ms, 19.3 * ms]"
-,stdp_PC_PC_basal,"[76, -48, 15.9 * ms, 19.3 * ms]","# [76, -48, 15.9 * ms, 19.3 * ms]"
+,stdp_PC_PC_a4,"[-21, 42, 15 * ms, 103.4 * ms]",
+,stdp_PC_PC_a3,"[7.50, 7.00, 15.00 * ms, 103.4 * ms]",
+,stdp_PC_PC_a2,"[36, -28, 12.5 * ms, 103.4 * ms]",
+,stdp_PC_PC_a1,"[76, -48, 15.9 * ms, 19.3 * ms]",
+,stdp_PC_PC_a0,"[76, -48, 15.9 * ms, 19.3 * ms]",
+,stdp_PC_PC_soma,"[76, -48, 15.9 * ms, 19.3 * ms]",
+,stdp_PC_PC_basal,"[76, -48, 15.9 * ms, 19.3 * ms]",
 ,stdp_PC_BC_soma,"[-46,-56,39.9 * ms,39.1 * ms]",
 ,stdp_PC_MC_soma,"[240,-50, 7.1 * ms,39.1 * ms]",
 ,stdp_PC_L1i_soma,"[-46, -56, 39.9 * ms, 39.1 * ms]",
@@ -253,7 +253,7 @@ PC,Cm,(1*ufarad*cm**-2),
 ,tau_e,3 * ms,"# 1.7 ms from Markram Cell 2015. This however misses NMDA contribution (12% according to Markram Cell 2015). Given this proportion and AMPA tau 3 ms and NMDA tau 200 ms(NMDA fast decay; both from Spruston JPhysiol 1995), we get double exponential decay"
 ,tau_eX, 3 * ms,
 ,tau_i,8.3 * ms,
-,ap_target_frequency,5 * Hz ,
+,ap_target_frequency,20 * Hz ,
 ,,,
 ,,,
 BC,C,100 * pF,"# Somatosensory cortex, Beierlein 2000 - Badel et al., 2008: 90 pF self.output_namespace['C'] = 60 * pF  # neuroelectro portal"
@@ -269,7 +269,7 @@ BC,C,100 * pF,"# Somatosensory cortex, Beierlein 2000 - Badel et al., 2008: 90 p
 ,taum_soma,C/gL,
 ,V_res,VT- 4 * mV,
 ,Vcut,VT+ 5*DeltaT,
-,ap_target_frequency,50 * Hz ,
+,ap_target_frequency,20 * Hz ,
 ,,,
 L1i,gL,3.2 * nS  ,"# 3.2 nsiemens mean of cell types in L1, Muralidhar 2014 Front Neuroanat, Table 3, mean of 1/""input resistance for steady state"""
 ,taum_soma,19.8 * ms  ,"#  19.8 ms mean of cell types in L1, Muralidhar 2014 Front Neuroanat, Table 3, mean of ""time constant for delta pulse"""
@@ -284,7 +284,7 @@ L1i,gL,3.2 * nS  ,"# 3.2 nsiemens mean of cell types in L1, Muralidhar 2014 Fron
 ,C,taum_soma * gL,
 ,V_res,VT- 4 * mV,
 ,Vcut,VT+ 5*DeltaT,
-,ap_target_frequency,5 * Hz ,
+,ap_target_frequency,20 * Hz ,
 ,,,
 ,,,
 MC,C,92.1 * pF,"# 92.1 +- 8.4, Paluszkiewicz 2011 J Neurophysiol"
@@ -300,7 +300,7 @@ MC,C,92.1 * pF,"# 92.1 +- 8.4, Paluszkiewicz 2011 J Neurophysiol"
 ,gL,C/taum_soma,
 ,V_res,VT- 4 * mV,
 ,Vcut,VT+ 5*DeltaT,
-,ap_target_frequency,5 * Hz ,
+,ap_target_frequency,20 * Hz ,
 ,,,
 SS,Cm,(1 * ufarad * cm ** -2),"# Capacitance, multiplied by the compartmental area to get the final C(compartment)"
 ,gl,(4.2e-5 * siemens * cm ** -2),"# leak conductance, -''-  Amatrudo et al, 2005 (ja muut) - tuned down to fix R_in,# 0.38 is summation of array([0.2, 0.03, 0.15])"
@@ -321,4 +321,4 @@ SS,Cm,(1 * ufarad * cm ** -2),"# Capacitance, multiplied by the compartmental ar
 ,C,0.03 * Cm * Area_tot_pyram *2,
 ,gL,0.03 * gl * Area_tot_pyram *2,
 ,taum_soma,C/gL,
-,ap_target_frequency,5 * Hz ,
+,ap_target_frequency,20 * Hz ,
